@@ -1,0 +1,20 @@
+{
+  "miniapp": {
+    "version": "1",
+    "name": "Quorum Polls",
+    "subtitle": "Community polls on Farcaster",
+    "description": "Create and vote on polls with wallet integration",
+    "homeUrl": "https://quorum-polls.vercel.app/",
+    "iconUrl": "https://quorum-polls.vercel.app/quorum-logo.png",
+    "splashImageUrl": "https://quorum-polls.vercel.app/quorum-logo.png",
+    "splashBackgroundColor": "#000000",
+    "requiredChains": ["eip155:8453"],
+    "requiredCapabilities": ["actions.signIn", "wallet.getEthereumProvider"],
+    "screenshotUrls": ["https://quorum-polls.vercel.app/screenshot-1.png"]
+  },
+  "accountAssociation": {
+    "header": "eyJmaWQiOjExNzg4NjYsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg3QkZFRDZGODFFYjQ4ZTJERTQ2OEY5Yzg2QTY3NzYwN0I1MEVBNDBkIn0",
+    "payload": "eyJkb21haW4iOiJxdW9ydW0tcG9sbHMudmVyY2VsLmFwcCJ9",
+    "signature": "MHg2ZmZjMmU0N2Q4Njg3MmQ5MzFjNzJiZmE0NGE3MmM1YWIwMDIxYjFmYzRkOGIyYmMzZjdlMjU0MjFhODg4MmE5MmRkZDgwMDdjZWZlZmZkZTYxMzNhZjNmNDdlOTUzY2Y0MjEyNWYzYjU4MzUwYjRkMjc4Y2Q0ZDNjZjU2YzJjODFi"
+  }
+}

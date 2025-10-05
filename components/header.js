@@ -19,9 +19,9 @@ export function Header() {
                 className="w-full h-full object-contain"
               />
             </div>
-            <div className="hidden sm:block">
-              <h1 className="text-lg md:text-xl font-bold text-foreground">Quorum</h1>
-              <p className="text-xs text-muted-foreground hidden md:block">Community Polls</p>
+            <div>
+              <h1 className="text-base sm:text-lg md:text-xl font-bold text-foreground">Quorum</h1>
+              <p className="text-xs text-muted-foreground">Community Polls</p>
             </div>
           </Link>
           <div className="flex items-center gap-2 md:gap-3">

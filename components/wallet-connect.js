@@ -4,6 +4,7 @@ import { useAccount, useConnect, useDisconnect } from "wagmi"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { sdk } from "@farcaster/miniapp-sdk"
+import { useRouter } from "next/navigation"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +18,7 @@ export function WalletConnect() {
   const { address, isConnected } = useAccount()
   const { connect, connectors } = useConnect()
   const { disconnect } = useDisconnect()
+  const router = useRouter()
   const [user, setUser] = useState(null)
   const [isReady, setIsReady] = useState(false)
 
@@ -31,7 +33,7 @@ export function WalletConnect() {
         setIsReady(true)
       } catch (error) {
         console.error("[v0] SDK initialization error:", error)
-        setIsReady(true) // Still set ready even on error
+        setIsReady(true)
       }
     }
     initSDK()
@@ -71,21 +73,23 @@ export function WalletConnect() {
   }
 
   const displayName = user?.displayName || user?.username || "User"
-  const pfpUrl = user?.pfpUrl || "/placeholder-user.jpg"
+  const pfpUrl = user?.pfpUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${address}`
   const shortAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-2">
-          <img
-            src={pfpUrl || "/placeholder.svg"}
-            alt="Profile"
-            className="w-6 h-6 rounded-full"
-            onError={(e) => {
-              e.target.src = "/placeholder-user.jpg"
-            }}
-          />
+          <div className="w-6 h-6 rounded-full overflow-hidden bg-muted flex-shrink-0">
+            <img
+              src={pfpUrl || "/placeholder.svg"}
+              alt="Profile"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${address}`
+              }}
+            />
+          </div>
           <span className="hidden sm:inline">{displayName}</span>
         </Button>
       </DropdownMenuTrigger>
@@ -96,6 +100,10 @@ export function WalletConnect() {
             <span className="text-xs text-muted-foreground font-normal">{shortAddress}</span>
           </div>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => router.push("/profile")} className="cursor-pointer">
+          View Profile
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => disconnect()}

@@ -2,21 +2,28 @@
 
 import { useEffect, useState } from "react"
 import { collection, query, orderBy, limit, getDocs, where } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { auth } from "@/lib/firebase"  // Add this import
+import { db, auth } from "@/lib/firebase"
 import { PollCard } from "./poll-card"
 
-export function PollsList() {
+export function PollsList({ filter = "active" }) {
   const [polls, setPolls] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (user) {  // Auth ready (anonymous or otherwise)
+      if (user) {
         async function fetchPolls() {
           try {
             const pollsRef = collection(db, "polls")
-            const q = query(pollsRef, where("endTime", ">", new Date()), orderBy("endTime", "desc"), limit(6))
+            const now = new Date()
+
+            let q
+            if (filter === "active") {
+              q = query(pollsRef, where("endTime", ">", now), orderBy("endTime", "desc"), limit(6))
+            } else {
+              q = query(pollsRef, where("endTime", "<=", now), orderBy("endTime", "desc"), limit(6))
+            }
+
             const querySnapshot = await getDocs(q)
             const pollsData = querySnapshot.docs.map((doc) => ({
               id: doc.id,
@@ -32,12 +39,12 @@ export function PollsList() {
 
         fetchPolls()
       } else {
-        setLoading(false)  // Or handle unauth state
+        setLoading(false)
       }
     })
 
-    return unsubscribe  // Cleanup listener
-  }, [])
+    return unsubscribe
+  }, [filter])
 
   if (loading) {
     return (
@@ -52,7 +59,11 @@ export function PollsList() {
   if (polls.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">No active polls yet. Be the first to create one!</p>
+        <p className="text-muted-foreground">
+          {filter === "active"
+            ? "No active polls yet. Be the first to create one!"
+            : "No ended polls yet. Check back later!"}
+        </p>
       </div>
     )
   }

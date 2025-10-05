@@ -25,7 +25,7 @@ const TIME_LIMITS = [
 
 export function CreatePollForm() {
   const router = useRouter()
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
   const [loading, setLoading] = useState(false)
   const [farcasterUser, setFarcasterUser] = useState(null)
   const [formData, setFormData] = useState({
@@ -71,16 +71,20 @@ export function CreatePollForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    if (!isConnected || !address) {
+      toast.error("Please connect your wallet to create a poll!")
+      return
+    }
+
     setLoading(true)
 
     try {
-      // Calculate end time
       const endTime = new Date()
       endTime.setHours(endTime.getHours() + formData.timeLimit)
 
       const creatorUsername = farcasterUser?.username || farcasterUser?.displayName || "anonymous"
 
-      // Create poll document
       const pollData = {
         question: formData.question,
         category: formData.category,
@@ -96,7 +100,6 @@ export function CreatePollForm() {
       const docRef = await addDoc(collection(db, "polls"), pollData)
       console.log("[v0] Poll created with ID:", docRef.id)
 
-      // Redirect to the poll page
       router.push(`/poll/${docRef.id}`)
     } catch (error) {
       console.error("[v0] Error creating poll:", error)
@@ -111,8 +114,13 @@ export function CreatePollForm() {
 
   return (
     <Card className="p-6 md:p-8 bg-card border-border">
+      {!isConnected && (
+        <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+          <p className="text-sm text-destructive font-medium">Please connect your wallet to create a poll</p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Question */}
         <div className="space-y-2">
           <Label htmlFor="question" className="text-foreground">
             Poll Question
@@ -129,7 +137,6 @@ export function CreatePollForm() {
           <p className="text-xs text-muted-foreground">{formData.question.length}/280 characters</p>
         </div>
 
-        {/* Category */}
         <div className="space-y-2">
           <Label htmlFor="category" className="text-foreground">
             Category
@@ -152,7 +159,6 @@ export function CreatePollForm() {
           </div>
         </div>
 
-        {/* Time Limit */}
         <div className="space-y-2">
           <Label htmlFor="timeLimit" className="text-foreground">
             Time Limit
@@ -175,7 +181,6 @@ export function CreatePollForm() {
           </div>
         </div>
 
-        {/* Options */}
         <div className="space-y-2">
           <Label className="text-foreground">Poll Options (2-6)</Label>
           <div className="space-y-3">
@@ -220,11 +225,10 @@ export function CreatePollForm() {
           )}
         </div>
 
-        {/* Submit */}
         <div className="flex gap-4 pt-4">
           <Button
             type="submit"
-            disabled={!isValid || loading}
+            disabled={!isValid || loading || !isConnected}
             className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
           >
             {loading ? "Creating..." : "Create Poll"}

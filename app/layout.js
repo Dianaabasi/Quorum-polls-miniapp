@@ -6,43 +6,47 @@ import { Toaster } from "sonner"
 import "./globals.css"
 import { Suspense } from "react"
 
+const farcasterMiniappConfig = {
+  version: "1",
+  imageUrl: "https://quorum-polls.vercel.app/og-image.png",
+  button: {
+    title: "Open Quorum Polls",
+    action: {
+      type: "launch_miniapp",
+      url: "https://quorum-polls.vercel.app",
+      name: "Quorum Polls",
+      splashImageUrl: "https://quorum-polls.vercel.app/quorum-logo.png",
+      splashBackgroundColor: "#000000",
+    },
+  },
+}
+
+const farcasterFrameConfig = {
+  version: "1",
+  imageUrl: "https://quorum-polls.vercel.app/og-image.png",
+  button: {
+    title: "Open Quorum Polls",
+    action: {
+      type: "launch_frame",
+      url: "https://quorum-polls.vercel.app",
+      name: "Quorum Polls",
+      splashImageUrl: "https://quorum-polls.vercel.app/quorum-logo.png",
+      splashBackgroundColor: "#000000",
+    },
+  },
+}
+
 export const metadata = {
   title: "Quorum - Community Polls on Base",
   description: "Create and vote on polls in the Farcaster community on Base",
-  generator: "v0.app",
   icons: {
     icon: "/quorum-logo.ico",
   },
   other: {
-    "fc:miniapp": JSON.stringify({
-      version: "1",
-      imageUrl: "https://quorum-polls.vercel.app/og-image.png",
-      button: {
-        title: "Open Quorum Polls",
-        action: {
-          type: "launch_miniapp",
-          url: "https://quorum-polls.vercel.app",
-          name: "Quorum Polls",
-          splashImageUrl: "https://quorum-polls.vercel.app/quorum-logo.png",
-          splashBackgroundColor: "#000000",
-        },
-      },
-    }),
-    "fc:frame": JSON.stringify({
-      version: "1",
-      imageUrl: "https://quorum-polls.vercel.app/og-image.png",
-      button: {
-        title: "Open Quorum Polls",
-        action: {
-          type: "launch_frame",
-          url: "https://quorum-polls.vercel.app",
-          name: "Quorum Polls",
-          splashImageUrl: "https://quorum-polls.vercel.app/quorum-logo.png",
-          splashBackgroundColor: "#000000",
-        },
-      },
-    }),
+    "fc:miniapp": JSON.stringify(farcasterMiniappConfig),
+    "fc:frame": JSON.stringify(farcasterFrameConfig),
   },
+    generator: 'v0.app'
 }
 
 export default function RootLayout({ children }) {

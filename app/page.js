@@ -9,7 +9,6 @@ export default function HomePage() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Hero Section */}
       <section className="container mx-auto px-4 py-8 md:py-12 lg:py-20">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4 text-balance">
@@ -36,7 +35,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 max-w-4xl mx-auto mt-12 md:mt-16 px-4">
           <Card className="p-4 md:p-6 text-center bg-card border-border hover:border-primary/50 transition-colors">
             <div className="text-2xl md:text-3xl font-bold text-primary mb-1 md:mb-2">1,234</div>
@@ -53,17 +51,35 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Active Polls */}
       <section id="active-polls" className="container mx-auto px-4 py-8 md:py-12 scroll-mt-20">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 md:mb-8">
           <h3 className="text-xl md:text-2xl font-bold text-foreground">Active Polls</h3>
+          <div className="flex gap-2">
+            <a href="#active-polls">
+              <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
+                View All
+              </Button>
+            </a>
+            <a href="#ended-polls">
+              <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
+                Ended
+              </Button>
+            </a>
+          </div>
+        </div>
+        <PollsList filter="active" />
+      </section>
+
+      <section id="ended-polls" className="container mx-auto px-4 py-8 md:py-12 scroll-mt-20">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 md:mb-8">
+          <h3 className="text-xl md:text-2xl font-bold text-foreground">Ended Polls</h3>
           <a href="#active-polls">
             <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-              View All
+              Back to Active
             </Button>
           </a>
         </div>
-        <PollsList />
+        <PollsList filter="ended" />
       </section>
     </div>
   )

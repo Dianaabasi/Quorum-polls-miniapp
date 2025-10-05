@@ -28,28 +28,12 @@ export function WalletConnect() {
       try {
         await sdk.actions.ready()
         const context = sdk.context
-        console.log("[v0] Full context object:", JSON.stringify(context, null, 2))
-        console.log("[v0] Context type:", typeof context)
-        console.log("[v0] Context keys:", Object.keys(context || {}))
-
-        // Try different ways to access user data
-        if (context) {
-          const userData = context.user
-          console.log("[v0] User data:", userData)
-          console.log("[v0] User type:", typeof userData)
-
-          if (userData) {
-            console.log("[v0] User keys:", Object.keys(userData))
-            console.log("[v0] User fid:", userData.fid)
-            console.log("[v0] User username:", userData.username)
-            console.log("[v0] User displayName:", userData.displayName)
-            console.log("[v0] User pfpUrl:", userData.pfpUrl)
-            setUser(userData)
-          }
+        if (context?.user) {
+          setUser(context.user)
         }
         setIsReady(true)
       } catch (error) {
-        console.error("[v0] SDK initialization error:", error)
+        console.error("SDK initialization error:", error)
         setIsReady(true)
       }
     }
@@ -89,8 +73,8 @@ export function WalletConnect() {
     )
   }
 
-  const displayName = user?.displayName || user?.username || user?.display_name || user?.name || "User"
-  const pfpUrl = user?.pfpUrl || user?.pfp_url || user?.pfp || user?.profileImage || user?.avatar || null
+  const displayName = user?.displayName || user?.username || "User"
+  const pfpUrl = user?.pfpUrl || null
   const shortAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""
 
   const avatarSeed = user?.fid || address

@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export function WalletConnect() {
   const { address, isConnected } = useAccount()
@@ -27,6 +28,8 @@ export function WalletConnect() {
       try {
         await sdk.actions.ready()
         const context = sdk.context
+        console.log("[v0] Farcaster context:", context)
+        console.log("[v0] Farcaster user:", context?.user)
         if (context?.user) {
           setUser(context.user)
         }
@@ -72,24 +75,30 @@ export function WalletConnect() {
     )
   }
 
-  const displayName = user?.displayName || user?.username || "User"
-  const pfpUrl = user?.pfpUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${address}`
+  const displayName = user?.displayName || user?.username || user?.display_name || "User"
+  const pfpUrl = user?.pfpUrl || user?.pfp_url || user?.pfp || user?.profileImage || null
   const shortAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""
+
+  const fallbackAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${address}`
+
+  console.log("[v0] Display name:", displayName)
+  console.log("[v0] PFP URL:", pfpUrl)
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full overflow-hidden bg-muted flex-shrink-0">
-            <img
-              src={pfpUrl || "/placeholder.svg"}
-              alt="Profile"
-              className="w-full h-full object-cover"
+          <Avatar className="w-6 h-6">
+            <AvatarImage
+              src={pfpUrl || fallbackAvatar}
+              alt={displayName}
               onError={(e) => {
-                e.target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${address}`
+                console.log("[v0] Image load error, using fallback")
+                e.target.src = fallbackAvatar
               }}
             />
-          </div>
+            <AvatarFallback className="text-xs">{displayName.slice(0, 2).toUpperCase()}</AvatarFallback>
+          </Avatar>
           <span className="hidden sm:inline">{displayName}</span>
         </Button>
       </DropdownMenuTrigger>

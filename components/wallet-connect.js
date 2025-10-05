@@ -28,10 +28,24 @@ export function WalletConnect() {
       try {
         await sdk.actions.ready()
         const context = sdk.context
-        console.log("[v0] Farcaster context:", context)
-        console.log("[v0] Farcaster user:", context?.user)
-        if (context?.user) {
-          setUser(context.user)
+        console.log("[v0] Full context object:", JSON.stringify(context, null, 2))
+        console.log("[v0] Context type:", typeof context)
+        console.log("[v0] Context keys:", Object.keys(context || {}))
+
+        // Try different ways to access user data
+        if (context) {
+          const userData = context.user
+          console.log("[v0] User data:", userData)
+          console.log("[v0] User type:", typeof userData)
+
+          if (userData) {
+            console.log("[v0] User keys:", Object.keys(userData))
+            console.log("[v0] User fid:", userData.fid)
+            console.log("[v0] User username:", userData.username)
+            console.log("[v0] User displayName:", userData.displayName)
+            console.log("[v0] User pfpUrl:", userData.pfpUrl)
+            setUser(userData)
+          }
         }
         setIsReady(true)
       } catch (error) {
@@ -75,52 +89,53 @@ export function WalletConnect() {
     )
   }
 
-  const displayName = user?.displayName || user?.username || user?.display_name || "User"
-  const pfpUrl = user?.pfpUrl || user?.pfp_url || user?.pfp || user?.profileImage || null
+  const displayName = user?.displayName || user?.username || user?.display_name || user?.name || "User"
+  const pfpUrl = user?.pfpUrl || user?.pfp_url || user?.pfp || user?.profileImage || user?.avatar || null
   const shortAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""
 
-  const fallbackAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${address}`
-
-  console.log("[v0] Display name:", displayName)
-  console.log("[v0] PFP URL:", pfpUrl)
+  const avatarSeed = user?.fid || address
+  const fallbackAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-2">
-          <Avatar className="w-6 h-6">
-            <AvatarImage
-              src={pfpUrl || fallbackAvatar}
-              alt={displayName}
-              onError={(e) => {
-                console.log("[v0] Image load error, using fallback")
-                e.target.src = fallbackAvatar
-              }}
-            />
-            <AvatarFallback className="text-xs">{displayName.slice(0, 2).toUpperCase()}</AvatarFallback>
-          </Avatar>
-          <span className="hidden sm:inline">{displayName}</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>
-          <div className="flex flex-col gap-1">
-            <span className="font-medium">{displayName}</span>
-            <span className="text-xs text-muted-foreground font-normal">{shortAddress}</span>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.push("/profile")} className="cursor-pointer">
-          View Profile
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => disconnect()}
-          className="text-destructive focus:text-destructive cursor-pointer"
-        >
-          Disconnect
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex items-center gap-2">
+      <Button
+        onClick={() => router.push("/profile")}
+        variant="ghost"
+        size="icon"
+        className="rounded-full p-0 w-10 h-10"
+      >
+        <Avatar className="w-10 h-10">
+          <AvatarImage src={pfpUrl || fallbackAvatar} alt={displayName} />
+          <AvatarFallback className="text-sm">{displayName.slice(0, 2).toUpperCase()}</AvatarFallback>
+        </Avatar>
+      </Button>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="hidden sm:flex">
+            <span>{displayName}</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuLabel>
+            <div className="flex flex-col gap-1">
+              <span className="font-medium">{displayName}</span>
+              <span className="text-xs text-muted-foreground font-normal">{shortAddress}</span>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => router.push("/profile")} className="cursor-pointer">
+            View Profile
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => disconnect()}
+            className="text-destructive focus:text-destructive cursor-pointer"
+          >
+            Disconnect
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   )
 }

@@ -10,10 +10,8 @@ import { auth } from "@/lib/firebase"
 
 const queryClient = new QueryClient()
 
-// Create a context for the Farcaster user
 const FarcasterUserContext = createContext({ user: null, loading: true });
 
-// Create a custom hook to use the Farcaster user context
 export const useFarcasterUser = () => useContext(FarcasterUserContext);
 
 export function Providers({ children }) {
@@ -21,39 +19,37 @@ export function Providers({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const initSDK = async () => {
+    const init = async () => {
       try {
-        await sdk.actions.ready()
-        console.log("[v0] Farcaster SDK ready")
+        await sdk.actions.ready();
         const context = sdk.context;
         if (context?.user) {
           setUser(context.user);
         }
       } catch (error) {
-        console.error("[v0] SDK initialization error:", error)
+        console.error("[v0] SDK initialization error:", error);
       } finally {
         setLoading(false);
       }
-    }
 
-    initSDK()
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          signInAnonymously(auth).catch((error) => {
+            console.error("[v0] Firebase auth error:", error);
+          });
+        }
+      });
+      return () => unsubscribe();
+    };
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        signInAnonymously(auth).catch((error) => {
-          console.error("[v0] Firebase auth error:", error)
-        })
-      }
-    })
-
-    return () => unsubscribe()
-  }, [])
+    init();
+  }, []);
 
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <FarcasterUserContext.Provider value={{ user, loading }}>
-          {children}
+            {children}
         </FarcasterUserContext.Provider>
       </QueryClientProvider>
     </WagmiProvider>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { collection, addDoc, serverTimestamp } from "firebase/firestore"
 import { db } from "@/lib/firebase"
@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useAccount } from "wagmi"
 import { toast } from "sonner"
-import { useFarcasterUser } from "@/components/providers" 
+import { useFarcasterUser } from "@/components/providers"
 
 const CATEGORIES = ["Crypto", "Tech", "Culture", "Gaming", "DeFi", "NFTs", "General"]
 
@@ -26,7 +26,7 @@ const TIME_LIMITS = [
 export function CreatePollForm() {
   const router = useRouter()
   const { address, isConnected } = useAccount()
-  const { user: farcasterUser } = useFarcasterUser(); 
+  const { user: farcasterUser, loading: userLoading } = useFarcasterUser();
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     question: "",
@@ -95,7 +95,10 @@ export function CreatePollForm() {
   }
 
   const isValid =
-    formData.question.trim() && formData.options.filter((opt) => opt.trim()).length >= 2 && formData.options.length <= 6
+    !userLoading &&
+    formData.question.trim() &&
+    formData.options.filter((opt) => opt.trim()).length >= 2 &&
+    formData.options.length <= 6
 
   return (
     <Card className="p-6 md:p-8 bg-card border-border">
@@ -216,7 +219,7 @@ export function CreatePollForm() {
             disabled={!isValid || loading || !isConnected}
             className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
           >
-            {loading ? "Creating..." : "Create Poll"}
+            {loading || userLoading ? "Loading..." : "Create Poll"}
           </Button>
           <Button
             type="button"

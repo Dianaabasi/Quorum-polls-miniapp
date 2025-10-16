@@ -22,9 +22,9 @@ export function Providers({ children }) {
     const init = async () => {
       try {
         await sdk.actions.ready();
-        const context = sdk.context;
-        if (context?.user) {
-          setUser(context.user);
+        const { user } = sdk.context;
+        if (user) {
+          setUser(user);
         }
       } catch (error) {
         console.error("[v0] SDK initialization error:", error);

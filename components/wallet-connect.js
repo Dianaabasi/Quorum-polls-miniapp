@@ -3,7 +3,6 @@
 import { useAccount, useConnect, useDisconnect } from "wagmi"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
-import { sdk } from "@farcaster/miniapp-sdk"
 import { useRouter } from "next/navigation"
 import {
   DropdownMenu,
@@ -14,31 +13,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useFarcasterUser } from "@/components/providers"
 
 export function WalletConnect() {
   const { address, isConnected } = useAccount()
   const { connect, connectors } = useConnect()
   const { disconnect } = useDisconnect()
   const router = useRouter()
-  const [user, setUser] = useState(null)
+  const { user, loading: userLoading } = useFarcasterUser() 
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    const initSDK = async () => {
-      try {
-        await sdk.actions.ready()
-        const context = sdk.context
-        if (context?.user) {
-          setUser(context.user)
-        }
-        setIsReady(true)
-      } catch (error) {
-        console.error("SDK initialization error:", error)
-        setIsReady(true)
-      }
-    }
-    initSDK()
-  }, [])
+    setIsReady(!userLoading);
+  }, [userLoading])
+
 
   useEffect(() => {
     if (isReady && !isConnected && connectors.length > 0) {

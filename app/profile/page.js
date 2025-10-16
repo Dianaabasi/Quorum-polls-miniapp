@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useAccount } from "wagmi"
-import { sdk } from "@farcaster/miniapp-sdk"
+import { useFarcasterUser } from "@/components/providers" 
 import { Header } from "@/components/header"
 import { Card } from "@/components/ui/card"
 import { collection, query, where, getDocs } from "firebase/firestore"
@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button"
 export default function ProfilePage() {
   const { address, isConnected } = useAccount()
   const router = useRouter()
-  const [user, setUser] = useState(null)
+  const { user, loading: userLoading } = useFarcasterUser(); 
   const [stats, setStats] = useState({
     votesCast: 0,
     usdEarned: 0,
@@ -23,53 +23,42 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const initSDK = async () => {
-      try {
-        await sdk.actions.ready()
-        const context = sdk.context
-        if (context?.user) {
-          setUser(context.user)
-        }
-      } catch (error) {
-        console.error("[v0] SDK initialization error:", error)
-      }
-    }
-    initSDK()
-  }, [])
-
-  useEffect(() => {
-    if (!isConnected || !address) {
+    if (!userLoading && !isConnected) { 
       router.push("/")
       return
     }
 
     const fetchStats = async () => {
-      try {
-        // Get polls created by user
-        const pollsQuery = query(collection(db, "polls"), where("creatorAddress", "==", address))
-        const pollsSnapshot = await getDocs(pollsQuery)
-        const pollsCreated = pollsSnapshot.size
+      if (address) {
+        try {
+          const pollsQuery = query(collection(db, "polls"), where("creatorAddress", "==", address))
+          const pollsSnapshot = await getDocs(pollsQuery)
+          const pollsCreated = pollsSnapshot.size
 
-        // Get votes cast by user (from localStorage)
-        const votedPolls = Object.keys(localStorage).filter((key) => key.startsWith(`votedPolls_${address}`))
-        const votesCast = votedPolls.length
+          const votedPolls = Object.keys(localStorage).filter((key) => key.startsWith(`votedPolls_${address}`))
+          const votesCast = votedPolls.length
 
-        setStats({
-          votesCast,
-          usdEarned: 0, // Placeholder for future implementation
-          pollsCreated,
-        })
-      } catch (error) {
-        console.error("[v0] Error fetching stats:", error)
-      } finally {
-        setLoading(false)
+          setStats({
+            votesCast,
+            usdEarned: 0, 
+            pollsCreated,
+          })
+        } catch (error) {
+          console.error("[v0] Error fetching stats:", error)
+        } finally {
+          setLoading(false)
+        }
       }
     }
 
-    fetchStats()
-  }, [address, isConnected, router])
+    if (isConnected && address) {
+        fetchStats()
+    } else if (!userLoading) {
+        setLoading(false);
+    }
+  }, [address, isConnected, router, userLoading]) 
 
-  if (!isConnected) {
+  if (userLoading || !isConnected) {
     return null
   }
 
@@ -87,7 +76,6 @@ export default function ProfilePage() {
         </Button>
 
         <Card className="bg-card border-border p-8">
-          {/* Profile Header */}
           <div className="flex flex-col items-center text-center mb-8">
             <div className="w-32 h-32 rounded-full overflow-hidden bg-muted mb-4 ring-4 ring-primary/20">
               <img src={pfpUrl || "/placeholder.svg"} alt={displayName} className="w-full h-full object-cover" />
@@ -96,11 +84,9 @@ export default function ProfilePage() {
             <p className="text-sm text-primary font-mono">{shortAddress}</p>
           </div>
 
-          {/* Lifetime Totals */}
           <div className="mb-6">
             <h2 className="text-center text-muted-foreground text-sm font-medium mb-6">Lifetime Totals</h2>
             <div className="grid grid-cols-3 gap-4">
-              {/* Votes Cast */}
               <div className="flex flex-col items-center text-center p-4 rounded-lg bg-background/50">
                 <div className="flex items-center gap-2 mb-2">
                   <Vote className="w-4 h-4 text-primary" />
@@ -109,7 +95,6 @@ export default function ProfilePage() {
                 <p className="text-xs text-muted-foreground">Votes Cast</p>
               </div>
 
-              {/* USD Earned */}
               <div className="flex flex-col items-center text-center p-4 rounded-lg bg-background/50">
                 <div className="flex items-center gap-2 mb-2">
                   <DollarSign className="w-4 h-4 text-green-500" />
@@ -120,7 +105,6 @@ export default function ProfilePage() {
                 <p className="text-xs text-muted-foreground">USD Earned</p>
               </div>
 
-              {/* Polls Created */}
               <div className="flex flex-col items-center text-center p-4 rounded-lg bg-background/50">
                 <div className="flex items-center gap-2 mb-2">
                   <PlusCircle className="w-4 h-4 text-blue-500" />

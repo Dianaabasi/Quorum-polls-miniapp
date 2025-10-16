@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useAccount } from "wagmi"
 import { toast } from "sonner"
-import { sdk } from "@farcaster/miniapp-sdk"
+import { useFarcasterUser } from "@/components/providers" 
 
 const CATEGORIES = ["Crypto", "Tech", "Culture", "Gaming", "DeFi", "NFTs", "General"]
 
@@ -26,29 +26,14 @@ const TIME_LIMITS = [
 export function CreatePollForm() {
   const router = useRouter()
   const { address, isConnected } = useAccount()
+  const { user: farcasterUser } = useFarcasterUser(); 
   const [loading, setLoading] = useState(false)
-  const [farcasterUser, setFarcasterUser] = useState(null)
   const [formData, setFormData] = useState({
     question: "",
     category: "General",
     timeLimit: 24,
     options: ["", ""],
   })
-
-  useEffect(() => {
-    const getFarcasterUser = async () => {
-      try {
-        const context = await sdk.context
-        if (context?.user) {
-          setFarcasterUser(context.user)
-          console.log("[v0] Farcaster user:", context.user)
-        }
-      } catch (error) {
-        console.error("[v0] Error getting Farcaster user:", error)
-      }
-    }
-    getFarcasterUser()
-  }, [])
 
   const addOption = () => {
     if (formData.options.length < 6) {

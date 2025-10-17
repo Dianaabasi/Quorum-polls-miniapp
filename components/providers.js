@@ -25,9 +25,11 @@ function FarcasterProvider({ children }) {
 
   // Effect to auto-connect the wallet using the Farcaster connector
   useEffect(() => {
-    const miniAppConnector = connectors.find((c) => c.id === 'farcaster');
-    if (miniAppConnector && !isConnected) {
-      connect({ connector: miniAppConnector });
+    if (connectors.length > 0) {
+      const miniAppConnector = connectors.find((c) => c.id === 'farcaster');
+      if (miniAppConnector && !isConnected) {
+        connect({ connector: miniAppConnector });
+      }
     }
   }, [connect, connectors, isConnected]);
 

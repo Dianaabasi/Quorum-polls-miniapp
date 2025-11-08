@@ -12,7 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useFarcasterUser } from "@/components/providers"
 
 export function WalletConnect() {
@@ -20,20 +19,16 @@ export function WalletConnect() {
   const { connect, connectors } = useConnect()
   const { disconnect } = useDisconnect()
   const router = useRouter()
-  const { user, loading: userLoading } = useFarcasterUser() 
+  const { user, loading: userLoading } = useFarcasterUser()
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    setIsReady(!userLoading);
+    setIsReady(!userLoading)
   }, [userLoading])
-
 
   useEffect(() => {
     if (isReady && !isConnected && connectors.length > 0) {
-      const miniAppConnector = connectors[0]
-      if (miniAppConnector) {
-        connect({ connector: miniAppConnector })
-      }
+      connect({ connector: connectors[0] })
     }
   }, [isReady, isConnected, connectors, connect])
 
@@ -48,12 +43,7 @@ export function WalletConnect() {
   if (!isConnected) {
     return (
       <Button
-        onClick={() => {
-          const miniAppConnector = connectors[0]
-          if (miniAppConnector) {
-            connect({ connector: miniAppConnector })
-          }
-        }}
+        onClick={() => connectors[0] && connect({ connector: connectors[0] })}
         className="bg-primary hover:bg-primary/90 text-primary-foreground"
       >
         Connect Wallet
@@ -62,11 +52,15 @@ export function WalletConnect() {
   }
 
   const displayName = user?.displayName || user?.username || "User"
-  const pfpUrl = user?.pfpUrl || null
+  const pfpUrl = user?.pfpUrl
   const shortAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""
-
   const avatarSeed = user?.fid || address
   const fallbackAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`
+  const imageUrl = pfpUrl || fallbackAvatar
+
+  const handleImageError = (e) => {
+    e.currentTarget.src = fallbackAvatar
+  }
 
   return (
     <div className="flex items-center gap-2">
@@ -76,10 +70,14 @@ export function WalletConnect() {
         size="icon"
         className="rounded-full p-0 w-10 h-10"
       >
-        <Avatar className="w-10 h-10">
-          <AvatarImage src={pfpUrl || fallbackAvatar} alt={displayName} />
-          <AvatarFallback className="text-sm">{displayName.slice(0, 2).toUpperCase()}</AvatarFallback>
-        </Avatar>
+        <div className="rounded-full overflow-hidden w-10 h-10">
+          <img
+            src={imageUrl || "/placeholder.svg"}
+            alt={displayName}
+            className="w-full h-full object-cover"
+            onError={handleImageError}
+          />
+        </div>
       </Button>
 
       <DropdownMenu>

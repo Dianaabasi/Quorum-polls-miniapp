@@ -26,7 +26,7 @@ const TIME_LIMITS = [
 export function CreatePollForm() {
   const router = useRouter()
   const { address, isConnected } = useAccount()
-  const { user: farcasterUser, loading: userLoading } = useFarcasterUser();
+  const { user: farcasterUser, loading: userLoading } = useFarcasterUser()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     question: "",
@@ -83,11 +83,9 @@ export function CreatePollForm() {
       }
 
       const docRef = await addDoc(collection(db, "polls"), pollData)
-      console.log("[v0] Poll created with ID:", docRef.id)
-
       router.push(`/poll/${docRef.id}`)
     } catch (error) {
-      console.error("[v0] Error creating poll:", error)
+      console.error("Error creating poll:", error)
       toast.error("Failed to create poll. Please try again.")
     } finally {
       setLoading(false)
